@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Личный кабинет — Imar mall</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .cabinet-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px 16px;
+    }
+
+    .cabinet-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .cabinet-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-avatar-lg {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5C4A8F, #8a74c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .profile-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #2d2d2d;
+      margin-bottom: 4px;
+    }
+
+    .profile-email {
+      font-size: 0.95rem;
+      color: #7a7a8c;
+      margin-bottom: 20px;
+    }
+
+    .cart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .cart-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2d2d2d;
+    }
+
+    .cart-empty {
+      color: #7a7a8c;
+      font-size: 0.98rem;
+      padding: 20px 0;
+    }
+
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1.4fr 120px 120px auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .cart-item__name {
+      font-weight: 600;
+      color: #2d2d2d;
+    }
+
+    .cart-item__meta {
+      color: #7a7a8c;
+      font-size: 0.92rem;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .cart-total__label {
+      color: #7a7a8c;
+      font-weight: 600;
+    }
+
+    .cart-total__value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #5C4A8F;
+    }
+
+    .cart-actions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .test-block {
+      margin-top: 24px;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .test-block.visible {
+      opacity: 1;
+      max-height: 500px;
+    }
+
+    .test-block__title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #2d2d2d;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .test-controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .test-message {
+      color: #7a7a8c;
+      font-size: 0.88rem;
+    }
+
+    .order-toast {
+      position: fixed;
+      bottom: -220px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3000;
+      width: min(92vw, 520px);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: bottom 0.35s ease, opacity 0.25s ease;
+    }
+
+    .order-toast.show {
+      bottom: 28px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .order-toast__header {
+      background: linear-gradient(90deg, #5C4A8F, #7b63be);
+      color: #ffffff;
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .order-toast__icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .order-toast__headline {
+      font-size: 1.02rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .order-toast__sub {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 2px;
+    }
+
+    .order-toast__body {
+      background: linear-gradient(90deg, #fff7df, #ffeec4);
+      padding: 12px 18px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .order-toast__text {
+      font-size: 0.9rem;
+      color: #5a5870;
+    }
+
+    .order-toast__sum {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #5C4A8F;
+      margin-top: 2px;
+    }
+
+    .order-toast__close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(90, 88, 112, 0.3);
+      background: rgba(90, 88, 112, 0.08);
+      color: #5a5870;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .order-toast__progress {
+      height: 4px;
+      background: rgba(92, 74, 143, 0.18);
+      transform-origin: left;
+      transform: scaleX(1);
+    }
+
+    .order-toast.show .order-toast__progress {
+      animation: toast-progress 3.8s linear forwards;
+    }
+
+    @keyframes toast-progress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    @media (max-width: 980px) {
+      .cabinet-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="header__inner">
+    <a href="index.html" class="header__logo">
+      <span class="header__logo-name">Imar mall</span>
+    </a>
+    <nav class="header__nav">
+      <a href="index.html" class="header__nav-link">Главная</a>
+      <a href="shops.html" class="header__nav-link">Магазины</a>
+      <a href="foodcourt.html" class="header__nav-link">Фудкорт</a>
+      <a href="events.html" class="header__nav-link">Акции</a>
+      <a href="contacts.html" class="header__nav-link">Контакты</a>
+    </nav>
+    <div class="header__actions" id="header-actions">
+      <a href="login.html" class="btn-login">Войти</a>
+    </div>
+  </div>
+</header>
+
+<main class="cabinet-page">
+  <div class="cabinet-grid">
+    <section class="cabinet-card">
+      <div class="profile-avatar-lg" id="profile-avatar">?</div>
+      <h1 class="profile-name" id="profile-name">Пользователь</h1>
+      <p class="profile-email" id="profile-email">email@example.com</p>
+      <button type="button" id="logout-btn" class="btn btn-outline">Выйти</button>
+    </section>
+
+    <section class="cabinet-card">
+      <div class="cart-header">
+        <h2 class="cart-title">Моя корзина</h2>
+      </div>
+
+      <div id="cart-empty" class="cart-empty" hidden>Ваша корзина пуста</div>
+      <div id="cart-list" class="cart-list"></div>
+
+      <div class="cart-total">
+        <span class="cart-total__label">Итоговая сумма</span>
+        <span class="cart-total__value" id="cart-total">0.00 сом</span>
+      </div>
+
+      <div class="cart-actions">
+        <button type="button" id="checkout-btn" class="btn btn-primary">Оформить заказ</button>
+      </div>
+
+      <div class="test-controls">
+        <button type="button" class="btn btn-outline btn-sm" id="toggle-test-block">
+          Добавить тестовый товар
+        </button>
+        <span class="test-message" id="test-message"></span>
+      </div>
+
+      <section class="test-block" id="test-block">
+        <h3 class="test-block__title">Добавить тестовый товар</h3>
+        <form id="test-item-form">
+          <div class="test-grid">
+            <input class="form-input" type="text" name="product_name" placeholder="Название" required>
+            <input class="form-input" type="number" step="0.01" min="0" name="price" placeholder="Цена" required>
+            <input class="form-input" type="number" min="1" name="quantity" placeholder="Количество" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Добавить</button>
+        </form>
+      </section>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">
+          <span class="footer__logo-name">Imar mall</span>
+        </a>
+        <p class="footer__slogan">
+          Место, где приятно проводить время — шопинг, еда и развлечения под одной крышей.
+        </p>
+      </div>
+
+      <div class="footer__nav-col">
+        <p class="footer__col-title">Навигация</p>
+        <ul class="footer__nav-list">
+          <li><a href="index.html" class="footer__nav-link">Главная</a></li>
+          <li><a href="shops.html" class="footer__nav-link">Магазины</a></li>
+          <li><a href="foodcourt.html" class="footer__nav-link">Фудкорт</a></li>
+          <li><a href="events.html" class="footer__nav-link">Акции и события</a></li>
+          <li><a href="contacts.html" class="footer__nav-link">Контакты</a></li>
+          <li><a href="cabinet.html" class="footer__nav-link">Личный кабинет</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__contacts-col">
+        <p class="footer__col-title">Контакты</p>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📍</span>
+          <span class="footer__contact-text">г. Бишкек, пр. Манаса 45, ТК «Imar mall»</span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📞</span>
+          <span class="footer__contact-text"><a href="tel:+996312445566">+996 (312) 44-55-66</a></span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">✉️</span>
+          <span class="footer__contact-text"><a href="mailto:info@imarmall.kg">info@imarmall.kg</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <p class="footer__copyright">© 2026 Imar mall. Все права защищены.</p>
+  </div>
+</footer>
+
+<div class="order-toast" id="order-toast">
+  <div class="order-toast__header">
+    <div class="order-toast__icon">✅</div>
+    <div>
+      <div class="order-toast__headline">Заказ оформлен!</div>
+      <div class="order-toast__sub">Спасибо за покупку в Imar mall</div>
+    </div>
+  </div>
+  <div class="order-toast__body">
+    <div>
+      <div class="order-toast__text">Мы свяжемся с вами в ближайшее время.</div>
+      <div class="order-toast__sum" id="order-toast-total">0.00 сом</div>
+    </div>
+    <button type="button" class="order-toast__close" id="order-toast-close">✕</button>
+  </div>
+  <div class="order-toast__progress"></div>
+</div>
+
+<script src="js/cart.js"></script>
+</body>
+</html>

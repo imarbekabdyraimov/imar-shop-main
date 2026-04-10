@@ -1,0 +1,252 @@
+/* ============================================================
+   header.css — Стили хедера и навигации
+   Проект: Веб-сайт торгового комплекса
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. ХЕДЕР — основной контейнер
+   ---------------------------------------------------------- */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  height: 72px;
+
+  /* Полупрозрачный тёмно-фиолетовый фон с blur */
+  background-color: rgba(59, 47, 110, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Тонкая нижняя граница для глубины */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* Внутренняя компоновка: лого | нав | кнопка */
+.header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* ----------------------------------------------------------
+   2. ЛОГОТИП (левая часть)
+   ---------------------------------------------------------- */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.header__logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.header__logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.header__logo-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.header__logo-slogan {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   3. НАВИГАЦИЯ (центр)
+   ---------------------------------------------------------- */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header__nav-link {
+  position: relative;
+  padding: 6px 14px;
+  font-size: 0.9375rem;   /* 15px */
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  /* Подчёркивание-индикатор */
+  overflow: hidden;
+}
+
+.header__nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: calc(100% - 24px);
+  height: 2px;
+  background-color: #5C4A8F;
+  border-radius: 2px;
+  transition: transform 0.25s ease;
+}
+
+.header__nav-link:hover {
+  color: #c9bfff;
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+.header__nav-link:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Активная (текущая) страница */
+.header__nav-link.active {
+  color: #c9bfff;
+}
+
+.header__nav-link.active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* ----------------------------------------------------------
+   4. КНОПКА ВХОДА / ИКОНКА КАБИНЕТА (правая часть)
+   ---------------------------------------------------------- */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Кнопка "Войти" — обводка белая */
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.btn-login:hover {
+  background-color: #ffffff;
+  color: #3b2f6e;
+  border-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Ссылка на личный кабинет (когда пользователь авторизован) */
+.header__cabinet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #c9bfff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(201, 191, 255, 0.35);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header__cabinet-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Аватар-иконка пользователя */
+.header__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   5. HERO-СЕКЦИЯ (баннер) — стилизация под хедер
+   ---------------------------------------------------------- */
+.hero {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Лёгкий декоративный фон для hero */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(92, 74, 143, 0.06) 0%,
+    transparent 60%,
+    rgba(92, 74, 143, 0.04) 100%);
+  pointer-events: none;
+}
+
+.hero__content {
+  position: relative;
+  max-width: 680px;
+}
+
+.hero__title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #2d2d2d;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.hero__subtitle {
+  font-size: 1.15rem;
+  color: #7a7a8c;
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
