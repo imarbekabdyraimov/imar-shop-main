@@ -1,257 +1,383 @@
-const API_BASE_URL = "http://localhost:5000";
+/**
+ * cart.js — Личный кабинет Imar mall
+ * Отвечает за:
+ *  - проверку авторизации через /me (редирект на login.html до отрисовки страницы)
+ *  - отображение профиля пользователя
+ *  - загрузку и отрисовку корзины
+ *  - удаление товаров
+ *  - оформление заказа (toast-уведомление + очистка корзины)
+ *  - кнопку «Выйти»
+ *  - обновление хедера (имя пользователя вместо «Войти»)
+ */
 
+"use strict";
+
+/* ============================================================
+   1. КОНСТАНТЫ И ССЫЛКИ НА DOM-ЭЛЕМЕНТЫ
+   ============================================================ */
+
+const API_BASE = "http://localhost:5000";
+
+// Элементы хедера
 const headerActions = document.getElementById("header-actions");
-const profileAvatar = document.getElementById("profile-avatar");
-const profileName = document.getElementById("profile-name");
-const profileEmail = document.getElementById("profile-email");
-const logoutBtn = document.getElementById("logout-btn");
 
-const cartList = document.getElementById("cart-list");
-const cartEmpty = document.getElementById("cart-empty");
-const cartTotal = document.getElementById("cart-total");
-const checkoutBtn = document.getElementById("checkout-btn");
-const orderToast = document.getElementById("order-toast");
+// Элементы блока профиля
+const profileAvatar = document.getElementById("profile-avatar");
+const profileName   = document.getElementById("profile-name");
+const profileEmail  = document.getElementById("profile-email");
+const logoutBtn     = document.getElementById("logout-btn");
+
+// Элементы блока корзины
+const cartList      = document.getElementById("cart-list");
+const cartEmptyMsg  = document.getElementById("cart-empty-msg");
+const cartTotal     = document.getElementById("cart-total");
+const checkoutBtn   = document.getElementById("checkout-btn");
+
+// Элементы toast-уведомления
+const orderToast      = document.getElementById("order-toast");
 const orderToastTotal = document.getElementById("order-toast-total");
 const orderToastClose = document.getElementById("order-toast-close");
 
-const toggleTestBlockBtn = document.getElementById("toggle-test-block");
-const testBlock = document.getElementById("test-block");
-const testItemForm = document.getElementById("test-item-form");
-const testMessage = document.getElementById("test-message");
+// Хранилище текущих товаров корзины (массив объектов)
+let currentItems = [];
 
-let currentUser = null;
-let currentCartItems = [];
+// Таймер авто-закрытия toast
 let toastTimer = null;
 
-// Делает fetch к API с нужными заголовками и cookie-сессией.
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+
+/* ============================================================
+   2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   ============================================================ */
+
+/**
+ * Универсальный fetch к API.
+ * Всегда передаёт credentials: "include" для работы с cookie-сессией.
+ * Возвращает { ok, status, data } — data уже распарсен из JSON (или null при ошибке).
+ */
+async function apiFetch(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
     },
     credentials: "include",
-    ...options,
   });
 
   let data = null;
   try {
     data = await response.json();
-  } catch (error) {
-    data = null;
+  } catch (_) {
+    // Тело ответа не является JSON — оставляем data = null
   }
 
-  return { response, data };
+  return { ok: response.ok, status: response.status, data };
 }
 
-// Форматирует сумму для отображения в корзине.
+/**
+ * Форматирует числовое значение в строку «1 234,00 сом».
+ */
 function formatPrice(value) {
-  return `${Number(value).toFixed(2)} сом`;
+  return Number(value).toLocaleString("ru-RU", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }) + " сом";
 }
 
-// Показывает стилизованное уведомление после оформления заказа.
-function showOrderToast(totalAmount) {
-  orderToastTotal.textContent = formatPrice(totalAmount);
-  orderToast.classList.add("show");
+/**
+ * Возвращает первую букву имени пользователя для аватара-заглушки.
+ */
+function getInitial(username) {
+  return (username || "?").trim().charAt(0).toUpperCase() || "?";
+}
+
+
+/* ============================================================
+   3. TOAST-УВЕДОМЛЕНИЕ
+   ============================================================ */
+
+/**
+ * Показывает toast с итоговой суммой заказа.
+ * Автоматически скрывается через 3,8 секунды.
+ */
+function showOrderToast(total) {
+  orderToastTotal.textContent = formatPrice(total);
+
+  // Сбрасываем класс, чтобы анимация прогресс-бара перезапустилась
+  orderToast.classList.remove("show");
+
+  // Небольшая пауза нужна, чтобы браузер успел применить сброс
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      orderToast.classList.add("show");
+    });
+  });
 
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    hideOrderToast();
-  }, 3800);
+  toastTimer = setTimeout(hideOrderToast, 3800);
 }
 
-// Скрывает уведомление заказа.
+/**
+ * Скрывает toast.
+ */
 function hideOrderToast() {
   orderToast.classList.remove("show");
   clearTimeout(toastTimer);
 }
 
-// Возвращает первую букву имени для аватара-заглушки.
-function getAvatarLetter(username) {
-  if (!username || typeof username !== "string") {
-    return "?";
-  }
-  return username.trim().charAt(0).toUpperCase() || "?";
-}
+// Кнопка «✕» внутри toast
+orderToastClose.addEventListener("click", hideOrderToast);
 
-// Обновляет правую часть хедера: показываем имя и ссылку на кабинет.
+
+/* ============================================================
+   4. ХЕДЕР — отображение имени пользователя
+   ============================================================ */
+
+/**
+ * Заменяет кнопку «Войти» на ссылку с именем авторизованного пользователя.
+ */
 function renderHeaderUser(user) {
   headerActions.innerHTML = `
     <a href="cabinet.html" class="header__cabinet-link">
-      <span class="header__avatar">${getAvatarLetter(user.username)}</span>
+      <span class="header__avatar">${getInitial(user.username)}</span>
       <span>${user.username}</span>
     </a>
   `;
 }
 
-// Заполняет блок профиля данными текущего пользователя.
+
+/* ============================================================
+   5. БЛОК ПРОФИЛЯ
+   ============================================================ */
+
+/**
+ * Заполняет блок профиля: аватар-буква, имя, e-mail.
+ */
 function renderProfile(user) {
-  profileAvatar.textContent = getAvatarLetter(user.username);
-  profileName.textContent = user.username;
-  profileEmail.textContent = user.email;
+  profileAvatar.textContent = getInitial(user.username);
+  profileName.textContent   = user.username;
+  profileEmail.textContent  = user.email;
 }
 
-// Рисует список товаров корзины и считает итоговую сумму.
+
+/* ============================================================
+   6. КОРЗИНА — отрисовка
+   ============================================================ */
+
+/**
+ * Отрисовывает список товаров корзины в DOM.
+ * Каждая строка: название | количество | цена/шт | итого | удалить.
+ * Если массив пуст — показывает сообщение «Корзина пуста».
+ * Обновляет итоговую сумму и активность кнопки «Оформить заказ».
+ */
 function renderCart(items) {
-  currentCartItems = items;
+  currentItems   = items;
   cartList.innerHTML = "";
 
   if (!items.length) {
-    cartEmpty.hidden = false;
-    cartTotal.textContent = formatPrice(0);
-    checkoutBtn.disabled = true;
+    // Корзина пустая
+    cartEmptyMsg.hidden    = false;
+    cartTotal.textContent  = formatPrice(0);
+    checkoutBtn.disabled   = true;
     return;
   }
 
-  cartEmpty.hidden = true;
+  // Корзина не пустая — скрываем сообщение-заглушку
+  cartEmptyMsg.hidden  = true;
   checkoutBtn.disabled = false;
 
-  let total = 0;
+  let totalSum = 0;
 
   items.forEach((item) => {
     const itemTotal = Number(item.price) * Number(item.quantity);
-    total += itemTotal;
+    totalSum += itemTotal;
 
+    // Создаём строку товара
     const row = document.createElement("article");
     row.className = "cart-item";
     row.innerHTML = `
-      <div class="cart-item__name">${item.product_name}</div>
-      <div class="cart-item__meta">Количество: ${item.quantity}</div>
-      <div class="cart-item__meta">Цена: ${formatPrice(item.price)}</div>
-      <button type="button" class="btn btn-danger btn-sm" data-remove-id="${item.id}">Удалить</button>
+      <div class="cart-item__name">${escapeHtml(item.product_name)}</div>
+      <div class="cart-item__cell">
+        Кол-во:&nbsp;<strong>${item.quantity}</strong>
+      </div>
+      <div class="cart-item__cell">
+        Цена:&nbsp;<strong>${formatPrice(item.price)}</strong>
+      </div>
+      <div class="cart-item__cell">
+        Итого:&nbsp;<strong>${formatPrice(itemTotal)}</strong>
+      </div>
+      <button
+        type="button"
+        class="btn btn-danger btn-sm"
+        data-remove-id="${item.id}"
+        aria-label="Удалить «${escapeHtml(item.product_name)}»"
+      >
+        Удалить
+      </button>
     `;
     cartList.appendChild(row);
   });
 
-  cartTotal.textContent = formatPrice(total);
+  cartTotal.textContent = formatPrice(totalSum);
 }
 
-// Загружает корзину текущего пользователя с бэкенда.
+/**
+ * Экранирует спецсимволы HTML чтобы избежать XSS при вставке данных в innerHTML.
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+
+/* ============================================================
+   7. КОРЗИНА — загрузка с сервера
+   ============================================================ */
+
+/**
+ * Делает GET /cart и передаёт полученный массив в renderCart().
+ */
 async function loadCart() {
-  const { response, data } = await apiRequest("/cart", { method: "GET" });
-  if (!response.ok || !data || data.success === false) {
+  const { ok, data } = await apiFetch("/cart");
+
+  if (!ok || !data || !Array.isArray(data.items)) {
     renderCart([]);
     return;
   }
 
-  renderCart(Array.isArray(data.items) ? data.items : []);
+  renderCart(data.items);
 }
 
-// Удаляет товар из корзины по id и обновляет список.
+
+/* ============================================================
+   8. УДАЛЕНИЕ ТОВАРА
+   ============================================================ */
+
+/**
+ * Делает DELETE /cart/remove/<id> и при успехе перезагружает корзину.
+ * Не перезагружает всю страницу.
+ */
 async function removeItem(itemId) {
-  const { response } = await apiRequest(`/cart/remove/${itemId}`, {
+  const { ok } = await apiFetch(`/cart/remove/${itemId}`, {
     method: "DELETE",
   });
 
-  if (!response.ok) {
-    alert("Не удалось удалить товар");
+  if (!ok) {
+    // Сообщаем об ошибке без alert — просто выводим в консоль
+    console.error(`Не удалось удалить товар id=${itemId}`);
     return;
   }
 
+  // Перезагружаем корзину из API, чтобы данные всегда были актуальными
   await loadCart();
 }
 
-// Оформляет заказ: показывает alert и очищает корзину удалением каждого товара.
-async function checkoutOrder() {
-  if (!currentCartItems.length) {
-    return;
-  }
+/**
+ * Делегируем клики кнопок «Удалить» на родительский контейнер списка.
+ * Это позволяет не навешивать обработчики на каждую кнопку отдельно.
+ */
+cartList.addEventListener("click", async (event) => {
+  const btn = event.target.closest("[data-remove-id]");
+  if (!btn) return;
 
-  const totalBeforeCheckout = currentCartItems.reduce(
+  const id = parseInt(btn.getAttribute("data-remove-id"), 10);
+  if (isNaN(id)) return;
+
+  // Блокируем кнопку на время запроса, чтобы избежать двойного клика
+  btn.disabled = true;
+  btn.textContent = "…";
+
+  await removeItem(id);
+});
+
+
+/* ============================================================
+   9. ОФОРМЛЕНИЕ ЗАКАЗА
+   ============================================================ */
+
+/**
+ * При нажатии «Оформить заказ»:
+ *  1. Запоминаем итоговую сумму.
+ *  2. Показываем toast.
+ *  3. Последовательно удаляем каждый товар через API.
+ *  4. Перерисовываем пустую корзину.
+ */
+checkoutBtn.addEventListener("click", async () => {
+  if (!currentItems.length) return;
+
+  // Считаем итоговую сумму из текущего состояния
+  const total = currentItems.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.quantity),
-    0,
+    0
   );
 
-  showOrderToast(totalBeforeCheckout);
+  // Показываем toast
+  showOrderToast(total);
 
-  // Последовательно удаляем товары, чтобы сохранить предсказуемое поведение.
-  for (const item of currentCartItems) {
-    await apiRequest(`/cart/remove/${item.id}`, { method: "DELETE" });
+  // Удаляем все товары по одному — предсказуемо и надёжно
+  for (const item of currentItems) {
+    await apiFetch(`/cart/remove/${item.id}`, { method: "DELETE" });
   }
 
+  // Обновляем отображение корзины
   await loadCart();
-}
+});
 
-// Добавляет тестовый товар через форму внизу страницы.
-async function addTestItem(event) {
-  event.preventDefault();
-  testMessage.textContent = "";
 
-  const formData = new FormData(testItemForm);
-  const productName = String(formData.get("product_name") || "").trim();
-  const price = Number(formData.get("price"));
-  const quantity = Number(formData.get("quantity"));
+/* ============================================================
+   10. ВЫХОД
+   ============================================================ */
 
-  if (!productName || Number.isNaN(price) || Number.isNaN(quantity) || quantity < 1 || price < 0) {
-    testMessage.textContent = "Введите корректные данные товара";
-    return;
-  }
-
-  const { response, data } = await apiRequest("/cart/add", {
-    method: "POST",
-    body: JSON.stringify({
-      product_name: productName,
-      price,
-      quantity,
-    }),
-  });
-
-  if (!response.ok || (data && data.success === false)) {
-    testMessage.textContent = (data && data.message) || "Не удалось добавить товар";
-    return;
-  }
-
-  testItemForm.reset();
-  testMessage.textContent = "Товар добавлен";
-  await loadCart();
-}
-
-// Выход пользователя: закрываем сессию, чистим localStorage и уходим на главную.
-async function logout() {
-  await apiRequest("/logout", { method: "POST" });
+/**
+ * POST /logout → очистить localStorage → перейти на index.html.
+ */
+logoutBtn.addEventListener("click", async () => {
+  await apiFetch("/logout", { method: "POST" });
   localStorage.removeItem("user");
   window.location.href = "index.html";
-}
+});
 
-// Проверяет авторизацию через /me и инициализирует страницу кабинета.
-async function initCabinetPage() {
-  const { response, data } = await apiRequest("/me", { method: "GET" });
 
-  if (response.status === 401 || !response.ok || !data || data.success === false || !data.user) {
-    window.location.href = "login.html";
-    return;
+/* ============================================================
+   11. ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ
+   ============================================================ */
+
+/**
+ * Точка входа. Вызывается сразу при загрузке скрипта.
+ *
+ * Порядок действий:
+ *  1. GET /me — проверяем авторизацию.
+ *  2. Если ответ 401 → немедленный redirect на login.html
+ *     (страница ещё скрыта через visibility:hidden, поэтому «мигания» нет).
+ *  3. Если авторизованы → делаем страницу видимой, рисуем профиль и корзину.
+ */
+async function init() {
+  const { ok, status, data } = await apiFetch("/me");
+
+  // Пользователь не авторизован — уходим до показа страницы
+  if (status === 401 || !ok || !data?.user) {
+    window.location.replace("login.html");
+    return; // дальнейший код не выполняется
   }
 
-  currentUser = data.user;
-  localStorage.setItem("user", JSON.stringify(currentUser));
+  // Авторизация подтверждена — раскрываем страницу пользователю
+  document.documentElement.style.visibility = "visible";
 
-  renderHeaderUser(currentUser);
-  renderProfile(currentUser);
+  const user = data.user;
+
+  // Сохраняем актуальные данные пользователя в localStorage
+  localStorage.setItem("user", JSON.stringify(user));
+
+  // Обновляем хедер и блок профиля
+  renderHeaderUser(user);
+  renderProfile(user);
+
+  // Загружаем корзину
   await loadCart();
 }
 
-// Клик по кнопке удаления делегируем на контейнер списка корзины.
-cartList.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-remove-id]");
-  if (!button) {
-    return;
-  }
-
-  const itemId = Number(button.getAttribute("data-remove-id"));
-  if (Number.isNaN(itemId)) {
-    return;
-  }
-
-  await removeItem(itemId);
-});
-
-checkoutBtn.addEventListener("click", checkoutOrder);
-logoutBtn.addEventListener("click", logout);
-testItemForm.addEventListener("submit", addTestItem);
-
-toggleTestBlockBtn.addEventListener("click", () => {
-  testBlock.classList.toggle("visible");
-});
-orderToastClose.addEventListener("click", hideOrderToast);
-
-initCabinetPage();
+// Запускаем инициализацию
+init();
