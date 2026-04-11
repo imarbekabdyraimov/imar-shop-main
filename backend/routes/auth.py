@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+from sqlalchemy import or_
 
 from models import User, db
 
@@ -45,8 +46,10 @@ def login():
     if not username or not password:
         return jsonify({"success": False, "message": "Введите имя пользователя и пароль"}), 400
 
-    # Ищем пользователя по имени.
-    user = User.query.filter_by(username=username).first()
+    # Ищем по имени пользователя или по e-mail (в поле «Логин» часто вводят почту).
+    user = User.query.filter(
+        or_(User.username == username, User.email == username)
+    ).first()
     if not user or user.password != password:
         return jsonify({"success": False, "message": "Неверное имя пользователя или пароль"}), 401
 
