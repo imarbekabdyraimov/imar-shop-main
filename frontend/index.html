@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Главная — Imar shop</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    /* ── Стили, специфичные только для index.html ── */
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+      position: relative;
+      overflow: hidden;
+      margin-top: -72px; /* перекрыть padding-top из body */
+    }
+
+    /* Декоративные размытые круги на фоне */
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+    .hero::before {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #c8b8f0, transparent);
+      top: -80px;
+      left: -120px;
+    }
+    .hero::after {
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, #ffd6b0, transparent);
+      bottom: -60px;
+      right: -80px;
+    }
+
+    .hero__content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+    }
+
+    .hero__eyebrow {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #5C4A8F;
+      background: rgba(92, 74, 143, 0.1);
+      padding: 5px 16px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    .hero__title {
+      font-size: 5rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -3px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .hero__title span {
+      color: #5C4A8F;
+    }
+
+    .hero__subtitle {
+      font-size: 1.25rem;
+      color: #7a7a8c;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero__buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    /* Стрелка вниз */
+    .hero__scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #b0a9c8;
+      font-size: 0.75rem;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .hero__scroll-arrow {
+      font-size: 1.2rem;
+      animation: bounce 1.8s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(6px); }
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .section-divider {
+      width: 56px;
+      height: 4px;
+      background: linear-gradient(to right, #5C4A8F, #c8b8f0);
+      border-radius: 4px;
+      margin: 12px auto 40px;
+    }
+
+    /* ── О НАС ── */
+    .about-text {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1.05rem;
+      color: #5a5870;
+      line-height: 1.8;
+      margin-bottom: 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    /* ── ПРЕВЬЮ-СЕКЦИИ: общая шапка ── */
+    .preview-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .preview-header__left {}
+
+    .preview-header__title {
+      font-size: 1.875rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      margin-bottom: 6px;
+    }
+
+    .preview-header__sub {
+      font-size: 0.9rem;
+      color: #7a7a8c;
+    }
+
+    /* ── МАГАЗИНЫ ── */
+    .shop-card__floor {
+      font-size: 0.8rem;
+      color: #a09ab8;
+      margin-top: 4px;
+    }
+
+    /* ── АКЦИИ ── */
+    .promo-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-left: 4px solid #5C4A8F;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: box-shadow 0.25s, transform 0.25s;
+    }
+    .promo-card:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.13);
+      transform: translateY(-3px);
+    }
+
+    .promo-card__discount {
+      display: inline-block;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #5C4A8F;
+      line-height: 1;
+    }
+
+    .promo-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2d2d2d;
+    }
+
+    .promo-card__store {
+      font-size: 0.875rem;
+      color: #7a7a8c;
+    }
+
+    .promo-card__deadline {
+      font-size: 0.8rem;
+      color: #a09ab8;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .grid-2-promos {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    /* ── ФУДКОРТ ── */
+    .foodcourt-section {
+      background: linear-gradient(135deg,
+        rgba(92, 74, 143, 0.06) 0%,
+        rgba(92, 74, 143, 0.02) 100%);
+      border-radius: 24px;
+      padding: 56px 48px;
+    }
+
+    .food-card__cuisine {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #5C4A8F;
+      margin-bottom: 6px;
+    }
+
+    .food-card__hours {
+      font-size: 0.82rem;
+      color: #a09ab8;
+      margin-top: 6px;
+    }
+
+    /* ── SECTION BG ALTERNATING ── */
+    .section--tinted {
+      background: rgba(255,255,255,0.5);
+      border-radius: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header class="header">
+  <div class="header__inner">
+    <a href="index.html" class="header__logo">
+      <span class="header__logo-name">Imar shop</span>
+    </a>
+    <nav class="header__nav">
+      <a href="index.html"     class="header__nav-link active">Главная</a>
+      <a href="shops.html"     class="header__nav-link">Магазины</a>
+      <a href="foodcourt.html" class="header__nav-link">Фудкорт</a>
+      <a href="events.html"    class="header__nav-link">Акции</a>
+      <a href="contacts.html"  class="header__nav-link">Контакты</a>
+    </nav>
+    <div class="header__actions">
+      <a href="login.html" class="btn-login" id="headerAuthBtn">Войти</a>
+    </div>
+  </div>
+</header>
+<!-- ========== /HEADER ========== -->
+
+
+<main>
+
+  <!-- ================================================
+       1. HERO
+       ================================================ -->
+  <section class="hero">
+    <div class="hero__content">
+      <span class="hero__eyebrow">Добро пожаловать</span>
+      <h1 class="hero__title">Imar <span>shop</span></h1>
+      <p class="hero__subtitle">
+        Лучший торговый комплекс города — шопинг, фудкорт
+        и&nbsp;развлечения в&nbsp;одном месте
+      </p>
+      <div class="hero__buttons">
+        <a href="shops.html"  class="btn btn-primary btn-lg">Каталог магазинов</a>
+        <a href="events.html" class="btn btn-outline btn-lg">Акции и скидки</a>
+      </div>
+    </div>
+    <a href="#about" class="hero__scroll">
+      <span>Узнать больше</span>
+      <span class="hero__scroll-arrow">↓</span>
+    </a>
+  </section>
+
+
+  <!-- ================================================
+       2. О КОМПЛЕКСЕ
+       ================================================ -->
+  <section class="section" id="about">
+    <div class="section--tinted" style="padding: 56px 48px;">
+
+      <h2 class="section-title">О нас</h2>
+      <div class="section-divider"></div>
+
+      <p class="about-text">
+        Imar shop — современный торговый комплекс в&nbsp;самом сердце
+        города, объединивший более 120 магазинов ведущих брендов,
+        просторный фудкорт и&nbsp;уютные зоны отдыха.
+        Мы создали пространство, в&nbsp;котором каждый визит
+        становится приятным событием&nbsp;— будь то семейный шопинг,
+        деловой обед или встреча с&nbsp;друзьями.
+        Удобная парковка, доступная среда и&nbsp;регулярные акции
+        делают Imar shop местом, куда хочется возвращаться.
+      </p>
+
+      <!-- 4 преимущества -->
+      <div class="features-grid">
+
+        <div class="feature-item">
+          <div class="feature-item__icon">🅿️</div>
+          <div class="feature-item__title">Парковка</div>
+          <div class="feature-item__text">500 удобных мест, бесплатно первые 2 часа</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item__icon">🏪</div>
+          <div class="feature-item__title">120+ магазинов</div>
+          <div class="feature-item__text">Одежда, электроника, красота и многое другое</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item__icon">🍕</div>
+          <div class="feature-item__title">Фудкорт</div>
+          <div class="feature-item__text">8 заведений — от фастфуда до авторской кухни</div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-item__icon">🎉</div>
+          <div class="feature-item__title">Акции</div>
+          <div class="feature-item__text">Скидки и события каждую неделю</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================
+       3. ПРЕВЬЮ МАГАЗИНОВ
+       ================================================ -->
+  <section class="section">
+
+    <div class="preview-header">
+      <div class="preview-header__left">
+        <h2 class="preview-header__title">Популярные магазины</h2>
+        <p class="preview-header__sub">Откройте для себя лучшие бренды нашего комплекса</p>
+      </div>
+      <a href="shops.html" class="btn btn-outline">Все магазины →</a>
+    </div>
+
+    <div class="grid-3">
+
+      <!-- Карточка 1 -->
+      <div class="card card--flush">
+        <div class="card__image-placeholder">👗</div>
+        <div class="card__body">
+          <span class="card__badge">Одежда</span>
+          <h3 class="card__title">Nova Style</h3>
+          <p class="card__text">
+            Трендовая одежда для всей семьи — от повседневных образов
+            до нарядных коллекций.
+          </p>
+          <div class="card__meta">📍 1-й этаж, павильон 14</div>
+          <div class="card__footer">
+            <a href="shops.html" class="btn btn-outline btn-sm">Подробнее</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Карточка 2 -->
+      <div class="card card--flush">
+        <div class="card__image-placeholder">💻</div>
+        <div class="card__body">
+          <span class="card__badge">Электроника</span>
+          <h3 class="card__title">TechZone</h3>
+          <p class="card__text">
+            Смартфоны, ноутбуки, аксессуары и умная электроника
+            по доступным ценам.
+          </p>
+          <div class="card__meta">📍 2-й этаж, павильон 31</div>
+          <div class="card__footer">
+            <a href="shops.html" class="btn btn-outline btn-sm">Подробнее</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Карточка 3 -->
+      <div class="card card--flush">
+        <div class="card__image-placeholder">💄</div>
+        <div class="card__body">
+          <span class="card__badge">Красота</span>
+          <h3 class="card__title">Gloss Beauty</h3>
+          <p class="card__text">
+            Косметика, парфюмерия и уходовые средства от мировых
+            и локальных брендов.
+          </p>
+          <div class="card__meta">📍 1-й этаж, павильон 8</div>
+          <div class="card__footer">
+            <a href="shops.html" class="btn btn-outline btn-sm">Подробнее</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================
+       4. ПРЕВЬЮ АКЦИЙ
+       ================================================ -->
+  <section class="section">
+
+    <div class="preview-header">
+      <div class="preview-header__left">
+        <h2 class="preview-header__title">Актуальные акции</h2>
+        <p class="preview-header__sub">Не пропустите выгодные предложения</p>
+      </div>
+      <a href="events.html" class="btn btn-outline">Все акции →</a>
+    </div>
+
+    <div class="grid-2-promos">
+
+      <!-- Акция 1 -->
+      <div class="promo-card">
+        <span class="promo-card__discount">−30%</span>
+        <div class="promo-card__title">Летняя распродажа коллекции</div>
+        <div class="promo-card__store">🏪 Nova Style</div>
+        <p style="font-size:0.9rem; color:#5a5870; line-height:1.6;">
+          Скидки на всю летнюю коллекцию одежды — брюки, платья,
+          футболки и аксессуары.
+        </p>
+        <div class="promo-card__deadline">⏱ Действует до 31 июля 2026</div>
+      </div>
+
+      <!-- Акция 2 -->
+      <div class="promo-card">
+        <span class="promo-card__discount">−20%</span>
+        <div class="promo-card__title">Скидка на все смартфоны</div>
+        <div class="promo-card__store">🏪 TechZone</div>
+        <p style="font-size:0.9rem; color:#5a5870; line-height:1.6;">
+          При покупке любого смартфона — 20% скидки
+          и&nbsp;бесплатный защитный чехол в подарок.
+        </p>
+        <div class="promo-card__deadline">⏱ Действует до 15 августа 2026</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================
+       5. ПРЕВЬЮ ФУДКОРТА
+       ================================================ -->
+  <section class="section">
+    <div class="foodcourt-section">
+
+      <div class="preview-header">
+        <div class="preview-header__left">
+          <h2 class="preview-header__title">Фудкорт</h2>
+          <p class="preview-header__sub">
+            3-й этаж · 8 заведений · Работает до 22:00
+          </p>
+        </div>
+        <a href="foodcourt.html" class="btn btn-primary">Перейти в фудкорт →</a>
+      </div>
+
+      <p style="font-size:1.05rem; color:#5a5870; line-height:1.8;
+                max-width:640px; margin-bottom:36px;">
+        На третьем этаже Imar shop расположен просторный фудкорт с&nbsp;8
+        заведениями на любой вкус — от быстрых перекусов до полноценных
+        обедов. Большой общий зал, уютные диваны и&nbsp;детская зона
+        сделают ваш обеденный перерыв максимально комфортным.
+      </p>
+
+      <div class="grid-3">
+
+        <!-- Заведение 1 -->
+        <div class="card">
+          <div class="food-card__cuisine">🍜 Азиатская кухня</div>
+          <h3 class="card__title">Wok Street</h3>
+          <p class="card__text">
+            Вок-лапша, роллы и&nbsp;рис с&nbsp;топпингами —
+            быстро, вкусно, сытно.
+          </p>
+          <div class="food-card__hours">🕙 10:00 — 22:00</div>
+        </div>
+
+        <!-- Заведение 2 -->
+        <div class="card">
+          <div class="food-card__cuisine">🍔 Фастфуд</div>
+          <h3 class="card__title">Burger Point</h3>
+          <p class="card__text">
+            Авторские бургеры на свежих булочках, картофель
+            фри и&nbsp;молочные коктейли.
+          </p>
+          <div class="food-card__hours">🕙 10:00 — 22:00</div>
+        </div>
+
+        <!-- Заведение 3 -->
+        <div class="card">
+          <div class="food-card__cuisine">🍕 Европейская кухня</div>
+          <h3 class="card__title">La Piazza</h3>
+          <p class="card__text">
+            Пицца на дровяной основе, паста и&nbsp;итальянские
+            десерты в&nbsp;уютной атмосфере.
+          </p>
+          <div class="food-card__hours">🕙 11:00 — 22:00</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">
+          <span class="footer__logo-name">Imar shop</span>
+        </a>
+        <p class="footer__slogan">
+          Место, где приятно проводить время —&nbsp;шопинг, еда
+          и&nbsp;развлечения под одной крышей.
+        </p>
+      </div>
+
+      <div class="footer__nav-col">
+        <p class="footer__col-title">Навигация</p>
+        <ul class="footer__nav-list">
+          <li><a href="index.html"     class="footer__nav-link">Главная</a></li>
+          <li><a href="shops.html"     class="footer__nav-link">Магазины</a></li>
+          <li><a href="foodcourt.html" class="footer__nav-link">Фудкорт</a></li>
+          <li><a href="events.html"    class="footer__nav-link">Акции и события</a></li>
+          <li><a href="contacts.html"  class="footer__nav-link">Контакты</a></li>
+          <li><a href="cabinet.html"   class="footer__nav-link">Личный кабинет</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__contacts-col">
+        <p class="footer__col-title">Контакты</p>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📍</span>
+          <span class="footer__contact-text">
+            г. Бишкек, пр. Манаса 45,<br>ТК «Imar shop»
+          </span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📞</span>
+          <span class="footer__contact-text">
+            <a href="tel:+996312445566">+996 (312) 44-55-66</a>
+          </span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">✉️</span>
+          <span class="footer__contact-text">
+            <a href="mailto:info@imarshop.kg">info@imarshop.kg</a>
+          </span>
+        </div>
+        <div class="footer__hours">
+          <p class="footer__hours-label">Режим работы</p>
+          <p class="footer__hours-time">Ежедневно: 10:00 — 22:00</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <p class="footer__copyright">© 2026 Imar shop. Все права защищены.</p>
+    <div class="footer__bottom-links">
+      <a href="#" class="footer__bottom-link">Политика конфиденциальности</a>
+      <a href="#" class="footer__bottom-link">Правила сайта</a>
+    </div>
+  </div>
+</footer>
+<!-- ========== /FOOTER ========== -->
+
+<script src="js/header-auth.js"></script>
+</body>
+</html>

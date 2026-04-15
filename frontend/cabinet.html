@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<!--
+  cabinet.html — Личный кабинет Imar shop
+  Страница доступна только авторизованным пользователям.
+  При загрузке сразу скрываем документ, проверяем /me и только
+  после успешного ответа делаем страницу видимой — никакого "мигания".
+-->
+<html lang="ru" style="visibility:hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Личный кабинет — Imar shop</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    /* ── Сетка страницы ── */
+    .cabinet-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px 16px;
+    }
+
+    .cabinet-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Карточка (общий контейнер) ── */
+    .cabinet-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Профиль ── */
+    .profile-avatar-lg {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5C4A8F, #8a74c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      user-select: none;
+    }
+
+    .profile-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2d2d2d;
+      margin-bottom: 4px;
+    }
+
+    .profile-email {
+      font-size: 0.9rem;
+      color: #7a7a8c;
+      margin-bottom: 24px;
+      word-break: break-all;
+    }
+
+    /* ── Заголовок корзины ── */
+    .cart-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2d2d2d;
+      margin-bottom: 18px;
+    }
+
+    /* ── Сообщение "корзина пуста" ── */
+    .cart-empty-msg {
+      color: #7a7a8c;
+      font-size: 0.98rem;
+      padding: 16px 0;
+    }
+
+    /* ── Список товаров ── */
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Строка товара ── */
+    .cart-item {
+      display: grid;
+      /* название | кол-во | цена/шт | итого | удалить */
+      grid-template-columns: 1fr 90px 110px 110px auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    .cart-item:hover {
+      border-color: rgba(92, 74, 143, 0.22);
+    }
+
+    .cart-item__name {
+      font-weight: 600;
+      color: #2d2d2d;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .cart-item__cell {
+      font-size: 0.9rem;
+      color: #7a7a8c;
+      white-space: nowrap;
+    }
+
+    .cart-item__cell strong {
+      color: #2d2d2d;
+      font-weight: 600;
+    }
+
+    /* ── Строка итогов ── */
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .cart-total-label {
+      color: #7a7a8c;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .cart-total-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #5C4A8F;
+    }
+
+    /* ── Кнопки действий ── */
+    .cart-actions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ── Toast-уведомление о заказе ── */
+    .order-toast {
+      position: fixed;
+      bottom: -220px;           /* изначально скрыт за нижним краем */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3000;
+      width: min(92vw, 480px);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: bottom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  opacity 0.3s ease;
+    }
+
+    /* Состояние «показан» */
+    .order-toast.show {
+      bottom: 28px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .order-toast__header {
+      background: linear-gradient(90deg, #5C4A8F, #7b63be);
+      color: #ffffff;
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .order-toast__icon {
+      font-size: 1.6rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .order-toast__headline {
+      font-size: 1.02rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .order-toast__sub {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 2px;
+    }
+
+    .order-toast__body {
+      background: linear-gradient(90deg, #fff7df, #ffeec4);
+      padding: 12px 18px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .order-toast__text {
+      font-size: 0.9rem;
+      color: #5a5870;
+      margin-bottom: 2px;
+    }
+
+    .order-toast__sum {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #5C4A8F;
+    }
+
+    .order-toast__close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(90, 88, 112, 0.3);
+      background: rgba(90, 88, 112, 0.08);
+      color: #5a5870;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .order-toast__close:hover {
+      background: rgba(90, 88, 112, 0.18);
+    }
+
+    /* Прогресс-бар авто-закрытия */
+    .order-toast__progress {
+      height: 4px;
+      background: rgba(92, 74, 143, 0.18);
+      transform-origin: left;
+      transform: scaleX(1);
+    }
+
+    .order-toast.show .order-toast__progress {
+      animation: toast-progress 3.8s linear forwards;
+    }
+
+    @keyframes toast-progress {
+      from { transform: scaleX(1); }
+      to   { transform: scaleX(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header class="header">
+  <div class="header__inner">
+    <a href="index.html" class="header__logo">
+      <span class="header__logo-name">Imar shop</span>
+    </a>
+    <nav class="header__nav">
+      <a href="index.html"     class="header__nav-link">Главная</a>
+      <a href="shops.html"     class="header__nav-link">Магазины</a>
+      <a href="foodcourt.html" class="header__nav-link">Фудкорт</a>
+      <a href="events.html"    class="header__nav-link">Акции</a>
+      <a href="contacts.html"  class="header__nav-link">Контакты</a>
+    </nav>
+    <!-- Сюда cart.js вставит имя пользователя после /me -->
+    <div class="header__actions" id="header-actions">
+      <a href="login.html" class="btn-login">Войти</a>
+    </div>
+  </div>
+</header>
+<!-- ========== /HEADER ========== -->
+
+
+<!-- ========== ОСНОВНОЙ КОНТЕНТ ========== -->
+<main class="cabinet-page">
+  <div class="cabinet-grid">
+
+    <!-- ── Блок профиля ── -->
+    <section class="cabinet-card">
+      <div class="profile-avatar-lg" id="profile-avatar">?</div>
+      <h1 class="profile-name"  id="profile-name">Пользователь</h1>
+      <p  class="profile-email" id="profile-email">email@example.com</p>
+      <button type="button" id="logout-btn" class="btn btn-outline">
+        Выйти
+      </button>
+    </section>
+
+    <!-- ── Блок корзины ── -->
+    <section class="cabinet-card">
+      <h2 class="cart-title">Моя корзина</h2>
+
+      <!-- Показывается когда корзина пуста -->
+      <p id="cart-empty-msg" class="cart-empty-msg" hidden>
+        Ваша корзина пуста
+      </p>
+
+      <!-- Список товаров — заполняется через JS -->
+      <div id="cart-list" class="cart-list"></div>
+
+      <!-- Итоговая сумма -->
+      <div class="cart-total-row">
+        <span class="cart-total-label">Итоговая сумма</span>
+        <span class="cart-total-value" id="cart-total">0,00 сом</span>
+      </div>
+
+      <!-- Кнопка оформления — disabled пока корзина пуста -->
+      <div class="cart-actions">
+        <button type="button" id="checkout-btn" class="btn btn-primary" disabled>
+          Оформить заказ
+        </button>
+      </div>
+    </section>
+
+  </div>
+</main>
+<!-- ========== /ОСНОВНОЙ КОНТЕНТ ========== -->
+
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">
+          <span class="footer__logo-name">Imar shop</span>
+        </a>
+        <p class="footer__slogan">
+          Место, где приятно проводить время — шопинг, еда
+          и развлечения под одной крышей.
+        </p>
+      </div>
+
+      <div class="footer__nav-col">
+        <p class="footer__col-title">Навигация</p>
+        <ul class="footer__nav-list">
+          <li><a href="index.html"     class="footer__nav-link">Главная</a></li>
+          <li><a href="shops.html"     class="footer__nav-link">Магазины</a></li>
+          <li><a href="foodcourt.html" class="footer__nav-link">Фудкорт</a></li>
+          <li><a href="events.html"    class="footer__nav-link">Акции и события</a></li>
+          <li><a href="contacts.html"  class="footer__nav-link">Контакты</a></li>
+          <li><a href="cabinet.html"   class="footer__nav-link">Личный кабинет</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__contacts-col">
+        <p class="footer__col-title">Контакты</p>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📍</span>
+          <span class="footer__contact-text">
+            г. Бишкек, пр. Манаса 45,<br>ТК «Imar shop»
+          </span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">📞</span>
+          <span class="footer__contact-text">
+            <a href="tel:+996312445566">+996 (312) 44-55-66</a>
+          </span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">✉️</span>
+          <span class="footer__contact-text">
+            <a href="mailto:info@imarmall.kg">info@imarmall.kg</a>
+          </span>
+        </div>
+        <div class="footer__hours">
+          <p class="footer__hours-label">Режим работы</p>
+          <p class="footer__hours-time">Ежедневно: 10:00 — 22:00</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <p class="footer__copyright">© 2026 Imar shop. Все права защищены.</p>
+    <div class="footer__bottom-links">
+      <a href="#" class="footer__bottom-link">Политика конфиденциальности</a>
+      <a href="#" class="footer__bottom-link">Правила сайта</a>
+    </div>
+  </div>
+</footer>
+<!-- ========== /FOOTER ========== -->
+
+
+<!-- ========== TOAST: «Заказ оформлен» ========== -->
+<div class="order-toast" id="order-toast" role="status" aria-live="polite">
+  <div class="order-toast__header">
+    <div class="order-toast__icon">✅</div>
+    <div>
+      <div class="order-toast__headline">Заказ оформлен!</div>
+      <div class="order-toast__sub">Спасибо за покупку в Imar shop</div>
+    </div>
+  </div>
+  <div class="order-toast__body">
+    <div>
+      <div class="order-toast__text">
+        Мы свяжемся с вами в ближайшее время.
+      </div>
+      <div class="order-toast__sum" id="order-toast-total"></div>
+    </div>
+    <button type="button" class="order-toast__close" id="order-toast-close"
+            aria-label="Закрыть уведомление">✕</button>
+  </div>
+  <div class="order-toast__progress"></div>
+</div>
+<!-- ========== /TOAST ========== -->
+
+
+<script src="js/cart.js"></script>
+</body>
+</html>

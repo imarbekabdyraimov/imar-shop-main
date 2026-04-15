@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Акции и события — Imar shop</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    /* ── HERO ── */
+    .page-hero {
+      padding: 64px 24px 56px;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .page-hero__eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #5C4A8F;
+      background: rgba(92, 74, 143, 0.1);
+      padding: 5px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .page-hero__title {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -1.5px;
+      margin-bottom: 14px;
+    }
+    .page-hero__subtitle {
+      font-size: 1.05rem;
+      color: #7a7a8c;
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .section-divider {
+      width: 56px;
+      height: 4px;
+      background: linear-gradient(to right, #5C4A8F, #c8b8f0);
+      border-radius: 4px;
+      margin: 14px auto 0;
+    }
+
+    /* ── СЕТКА АКЦИЙ ── */
+    .promo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    /* ── КАРТОЧКА АКЦИИ ── */
+    .promo-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+    .promo-card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+      transform: translateY(-4px);
+    }
+    .promo-card__top {
+      padding: 28px 24px 22px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .promo-card__discount {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      letter-spacing: -2px;
+    }
+    .promo-card__category-icon { font-size: 2rem; opacity: 0.8; }
+    .promo-card__top--violet { background: linear-gradient(135deg, #5C4A8F, #8a74c7); }
+    .promo-card__top--rose   { background: linear-gradient(135deg, #c04b8a, #e07ab8); }
+    .promo-card__top--teal   { background: linear-gradient(135deg, #2a8f7f, #50c2b0); }
+    .promo-card__top--amber  { background: linear-gradient(135deg, #c07a20, #e8a84a); }
+    .promo-card__top--navy   { background: linear-gradient(135deg, #2f4a8f, #6080cc); }
+    .promo-card__top--coral  { background: linear-gradient(135deg, #c04a3a, #e07060); }
+    .promo-card__body {
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .promo-card__store {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #5C4A8F;
+      margin-bottom: 8px;
+    }
+    .promo-card__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #2d2d2d;
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+    .promo-card__desc {
+      font-size: 0.875rem;
+      color: #7a7a8c;
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 18px;
+    }
+    .promo-card__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .promo-card__deadline { font-size: 0.8rem; color: #a09ab8; }
+
+    /* ── СОБЫТИЯ ── */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .event-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+    .event-card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+      transform: translateY(-4px);
+    }
+    .event-card__date-block {
+      background: linear-gradient(135deg, #3b2f6e, #5C4A8F);
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .event-card__date-num {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -2px;
+      flex-shrink: 0;
+    }
+    .event-card__date-right { display: flex; flex-direction: column; gap: 2px; }
+    .event-card__date-month {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .event-card__date-year { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+    .event-card__badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .event-card__body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+    .event-card__title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #2d2d2d;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .event-card__desc {
+      font-size: 0.875rem;
+      color: #7a7a8c;
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+    .event-card__meta {
+      font-size: 0.82rem;
+      color: #a09ab8;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* ── CTA БАННЕР ── */
+    .cta-banner {
+      background: linear-gradient(135deg, #3b2f6e 0%, #5C4A8F 60%, #8a74c7 100%);
+      border-radius: 20px;
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      margin: 0 24px;
+    }
+    .cta-banner__title { font-size: 1.6rem; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+    .cta-banner__text  { font-size: 0.95rem; color: rgba(255,255,255,0.72); line-height: 1.6; max-width: 480px; }
+    .cta-banner__actions { display: flex; gap: 12px; flex-shrink: 0; }
+
+    /* ── ЗАГОЛОВКИ СЕКЦИЙ ── */
+    .section-header { margin-bottom: 40px; }
+    .section-header__title { font-size: 2rem; font-weight: 800; color: #2d2d2d; margin-bottom: 8px; }
+    .section-header__sub   { font-size: 0.9375rem; color: #7a7a8c; }
+    .section-header__line  {
+      width: 48px; height: 4px;
+      background: linear-gradient(to right, #5C4A8F, #c8b8f0);
+      border-radius: 4px; margin-top: 12px;
+    }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%) translateY(160%);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(135deg, #2a1f52 0%, #3d2f7a 50%, #5C4A8F 100%);
+      color: #ffffff;
+      padding: 15px 20px 15px 18px;
+      border-radius: 14px;
+      box-shadow:
+        0 12px 40px rgba(42,31,82,0.55),
+        0 3px 10px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.13);
+      border: 1px solid rgba(201,191,255,0.2);
+      min-width: 300px;
+      max-width: 460px;
+      opacity: 0;
+      pointer-events: none;
+      /* подъём с пружиной */
+      transition:
+        transform 0.46s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity   0.30s ease;
+    }
+    .toast.toast--visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* спуск без пружины */
+    .toast.toast--hiding {
+      transform: translateX(-50%) translateY(160%);
+      opacity: 0;
+      transition:
+        transform 0.38s cubic-bezier(0.55, 0, 1, 0.8),
+        opacity   0.28s ease;
+    }
+    .toast__icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(201,191,255,0.5));
+    }
+    .toast__body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .toast__title { font-size: 0.9375rem; font-weight: 700; color: #ffffff; }
+    .toast__sub   { font-size: 0.775rem; color: rgba(201,191,255,0.78); }
+    .toast__close {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 7px;
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.6);
+      font-size: 1rem;
+      flex-shrink: 0;
+      padding: 0;
+      font-family: inherit;
+      line-height: 1;
+      transition: background 0.2s, color 0.2s;
+    }
+    .toast__close:hover { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .toast__progress {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 0 0 14px 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+    }
+    .toast__bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to right, #c9bfff, #9b86e0);
+      transform-origin: left center;
+      transform: scaleX(1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__inner">
+    <a href="index.html" class="header__logo">
+      <span class="header__logo-name">Imar shop</span>
+    </a>
+    <nav class="header__nav">
+      <a href="index.html"     class="header__nav-link">Главная</a>
+      <a href="shops.html"     class="header__nav-link">Магазины</a>
+      <a href="foodcourt.html" class="header__nav-link">Фудкорт</a>
+      <a href="events.html"    class="header__nav-link active">Акции</a>
+      <a href="contacts.html"  class="header__nav-link">Контакты</a>
+    </nav>
+    <div class="header__actions">
+      <a href="login.html" class="btn-login" id="headerAuthBtn">Войти</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <span class="page-hero__eyebrow">Imar shop</span>
+    <h1 class="page-hero__title">Акции и события</h1>
+    <p class="page-hero__subtitle">
+      Лучшие скидки от магазинов комплекса и&nbsp;ближайшие мероприятия — всё в&nbsp;одном месте
+    </p>
+    <div class="section-divider"></div>
+  </div>
+
+  <!-- АКЦИИ -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-header__title">Акции и скидки</h2>
+      <p class="section-header__sub">Актуальные предложения от магазинов и заведений Imar shop</p>
+      <div class="section-header__line"></div>
+    </div>
+
+    <div class="promo-grid">
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--violet">
+          <span class="promo-card__discount">-30%</span>
+          <span class="promo-card__category-icon">&#128247;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">Nova Style</div>
+          <h3 class="promo-card__title">Летняя распродажа всей коллекции</h3>
+          <p class="promo-card__desc">Скидки на платья, брюки, футболки и аксессуары летней коллекции. Более 500 моделей по сниженным ценам.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 31 июля 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('Nova Style', 'Летняя распродажа — до 31 июля 2026', '&#128247;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--navy">
+          <span class="promo-card__discount">-20%</span>
+          <span class="promo-card__category-icon">&#128241;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">TechZone</div>
+          <h3 class="promo-card__title">Скидка на все смартфоны + чехол в подарок</h3>
+          <p class="promo-card__desc">При покупке любого смартфона — скидка 20% и бесплатный защитный чехол в комплекте.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 15 августа 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('TechZone', 'Скидка на смартфоны — до 15 августа 2026', '&#128241;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--rose">
+          <span class="promo-card__discount">-25%</span>
+          <span class="promo-card__category-icon">&#128132;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">Gloss Beauty</div>
+          <h3 class="promo-card__title">Скидки на парфюмерию и уход</h3>
+          <p class="promo-card__desc">Весь ассортимент парфюмерии и уходовой косметики дешевле на 25%. Идеально для подарков.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 20 июля 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('Gloss Beauty', 'Парфюмерия и уход -25% — до 20 июля 2026', '&#128132;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--amber">
+          <span class="promo-card__discount">2+1</span>
+          <span class="promo-card__category-icon">&#127829;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">La Piazza</div>
+          <h3 class="promo-card__title">Три пиццы по цене двух</h3>
+          <p class="promo-card__desc">Закажи две любые пиццы из меню — третья достанется бесплатно. Предложение действует в зале и навынос.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 30 июня 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('La Piazza', 'Три пиццы по цене двух — до 30 июня 2026', '&#127829;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--teal">
+          <span class="promo-card__discount">-40%</span>
+          <span class="promo-card__category-icon">&#128187;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">TechZone</div>
+          <h3 class="promo-card__title">Ноутбуки прошлого сезона со скидкой</h3>
+          <p class="promo-card__desc">Распродажа моделей 2024 года — полная комплектация, официальная гарантия, цены снижены до 40%.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 10 июля 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('TechZone', 'Ноутбуки -40% — до 10 июля 2026', '&#128187;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-card">
+        <div class="promo-card__top promo-card__top--coral">
+          <span class="promo-card__discount">-15%</span>
+          <span class="promo-card__category-icon">&#128249;</span>
+        </div>
+        <div class="promo-card__body">
+          <div class="promo-card__store">Step &amp; Go</div>
+          <h3 class="promo-card__title">Скидка на всю летнюю обувь</h3>
+          <p class="promo-card__desc">Сандалии, кеды, мюли и босоножки — скидка 15% на весь летний ассортимент без исключений.</p>
+          <div class="promo-card__footer">
+            <span class="promo-card__deadline">&#9200; до 31 августа 2026</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('Step &amp; Go', 'Летняя обувь -15% — до 31 августа 2026', '&#128249;')">Подробнее</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div style="padding: 0 0 64px;">
+    <div class="cta-banner">
+      <div>
+        <h3 class="cta-banner__title">Подпишитесь на новости</h3>
+        <p class="cta-banner__text">Первыми узнавайте о новых акциях, мероприятиях и специальных предложениях от магазинов Imar shop.</p>
+      </div>
+      <div class="cta-banner__actions">
+        <a href="contacts.html" class="btn btn-ghost-white btn-lg">Связаться с нами</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- СОБЫТИЯ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="section-header">
+      <h2 class="section-header__title">События и мероприятия</h2>
+      <p class="section-header__sub">Ближайшие мероприятия в Imar shop — приходите и получайте яркие впечатления</p>
+      <div class="section-header__line"></div>
+    </div>
+
+    <div class="events-grid">
+
+      <div class="event-card">
+        <div class="event-card__date-block">
+          <div class="event-card__date-num">18</div>
+          <div class="event-card__date-right">
+            <span class="event-card__date-month">Июля</span>
+            <span class="event-card__date-year">2026</span>
+          </div>
+          <span class="event-card__badge">Концерт</span>
+        </div>
+        <div class="event-card__body">
+          <h3 class="event-card__title">Летний джаз-вечер: Live &amp; Acoustic</h3>
+          <p class="event-card__desc">Живой концерт джазового квартета в открытой зоне фудкорта. Вечер лёгкой музыки, летних коктейлей и уютной атмосферы. Вход свободный для всех гостей комплекса.</p>
+          <div class="event-card__meta">Центральный атриум, 1 этаж &nbsp;·&nbsp; 19:00 — 22:00</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-card__date-block">
+          <div class="event-card__date-num">25</div>
+          <div class="event-card__date-right">
+            <span class="event-card__date-month">Июля</span>
+            <span class="event-card__date-year">2026</span>
+          </div>
+          <span class="event-card__badge">Выставка</span>
+        </div>
+        <div class="event-card__body">
+          <h3 class="event-card__title">Арт-выставка «Город в красках»</h3>
+          <p class="event-card__desc">Экспозиция работ молодых художников Бишкека — живопись, графика и цифровое искусство, вдохновлённое городской средой. Вход свободный. Встреча с авторами — 25 июля в 15:00.</p>
+          <div class="event-card__meta">Галерея на 2 этаже, у эскалаторов &nbsp;·&nbsp; 25 июля — 8 августа</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-card__date-block">
+          <div class="event-card__date-num">02</div>
+          <div class="event-card__date-right">
+            <span class="event-card__date-month">Августа</span>
+            <span class="event-card__date-year">2026</span>
+          </div>
+          <span class="event-card__badge">День скидок</span>
+        </div>
+        <div class="event-card__body">
+          <h3 class="event-card__title">Суперсуббота: скидки до 50%</h3>
+          <p class="event-card__desc">Один день — максимальные скидки. Более 60 магазинов участвуют в едином дне распродаж: одежда, электроника, косметика и товары для дома. Приходите с утра.</p>
+          <div class="event-card__meta">Весь комплекс &nbsp;·&nbsp; 10:00 — 22:00</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">
+          <span class="footer__logo-name">Imar shop</span>
+        </a>
+        <p class="footer__slogan">Место, где приятно проводить время — шопинг, еда и развлечения под одной крышей.</p>
+      </div>
+      <div class="footer__nav-col">
+        <p class="footer__col-title">Навигация</p>
+        <ul class="footer__nav-list">
+          <li><a href="index.html"     class="footer__nav-link">Главная</a></li>
+          <li><a href="shops.html"     class="footer__nav-link">Магазины</a></li>
+          <li><a href="foodcourt.html" class="footer__nav-link">Фудкорт</a></li>
+          <li><a href="events.html"    class="footer__nav-link">Акции и события</a></li>
+          <li><a href="contacts.html"  class="footer__nav-link">Контакты</a></li>
+          <li><a href="cabinet.html"   class="footer__nav-link">Личный кабинет</a></li>
+        </ul>
+      </div>
+      <div class="footer__contacts-col">
+        <p class="footer__col-title">Контакты</p>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">&#128205;</span>
+          <span class="footer__contact-text">г. Бишкек, пр. Манаса 45, ТК «Imar shop»</span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">&#128222;</span>
+          <span class="footer__contact-text"><a href="tel:+996312445566">+996 (312) 44-55-66</a></span>
+        </div>
+        <div class="footer__contact-item">
+          <span class="footer__contact-icon">&#9993;&#65039;</span>
+          <span class="footer__contact-text"><a href="mailto:info@imarmall.kg">info@imarmall.kg</a></span>
+        </div>
+        <div class="footer__hours">
+          <p class="footer__hours-label">Режим работы</p>
+          <p class="footer__hours-time">Ежедневно: 10:00 — 22:00</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <p class="footer__copyright">&copy; 2026 Imar shop. Все права защищены.</p>
+    <div class="footer__bottom-links">
+      <a href="#" class="footer__bottom-link">Политика конфиденциальности</a>
+      <a href="#" class="footer__bottom-link">Правила сайта</a>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="toast__icon" id="toastIcon">&#127873;</span>
+  <div class="toast__body">
+    <span class="toast__title" id="toastTitle">Акция</span>
+    <span class="toast__sub"   id="toastSub">Страница акции скоро появится</span>
+  </div>
+  <button class="toast__close" id="toastClose" aria-label="Закрыть">&#10005;</button>
+  <div class="toast__progress">
+    <div class="toast__bar" id="toastBar"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var toast      = document.getElementById('toast');
+  var toastIcon  = document.getElementById('toastIcon');
+  var toastTitle = document.getElementById('toastTitle');
+  var toastSub   = document.getElementById('toastSub');
+  var toastBar   = document.getElementById('toastBar');
+  var closeBtn   = document.getElementById('toastClose');
+
+  var DURATION = 4000; // мс до автозакрытия
+  var hideTimer = null;
+
+  function showToast(store, info, icon) {
+    // Сброс предыдущего таймера
+    clearTimeout(hideTimer);
+
+    // Заполняем содержимое
+    toastIcon.innerHTML  = icon  || '&#127873;';
+    toastTitle.textContent = store || 'Акция';
+    toastSub.textContent   = info  || 'Страница акции скоро появится';
+
+    // Сбрасываем прогресс-бар мгновенно (без transition)
+    toastBar.style.transition = 'none';
+    toastBar.style.transform  = 'scaleX(1)';
+
+    // Снимаем hiding, ставим visible
+    toast.classList.remove('toast--hiding');
+    toast.classList.add('toast--visible');
+
+    // Запускаем анимацию прогресса через два кадра (чтобы CSS успел применить reset)
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        toastBar.style.transition = 'transform ' + DURATION + 'ms linear';
+        toastBar.style.transform  = 'scaleX(0)';
+      });
+    });
+
+    // Автоскрытие
+    hideTimer = setTimeout(hideToast, DURATION);
+  }
+
+  function hideToast() {
+    toast.classList.remove('toast--visible');
+    toast.classList.add('toast--hiding');
+
+    // Убираем класс после окончания анимации спуска
+    toast.addEventListener('transitionend', function handler() {
+      toast.classList.remove('toast--hiding');
+      toast.removeEventListener('transitionend', handler);
+    });
+  }
+
+  // Кнопка закрыть
+  closeBtn.addEventListener('click', function () {
+    clearTimeout(hideTimer);
+    hideToast();
+  });
+
+  // Пауза при наведении
+  toast.addEventListener('mouseenter', function () {
+    clearTimeout(hideTimer);
+  });
+  toast.addEventListener('mouseleave', function () {
+    hideTimer = setTimeout(hideToast, 1500);
+  });
+
+  // Глобально для onclick=""
+  window.showToast = showToast;
+})();
+</script>
+<script src="js/header-auth.js"></script>
+
+</body>
+</html>
